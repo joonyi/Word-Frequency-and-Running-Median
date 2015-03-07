@@ -1,3 +1,7 @@
+//Now it is tested with simple input that assume every words has a
+//separator such as comma, period, and space.
+//The program will see hello.\n and hello\n as two separate words. 
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <sys/types.h>
