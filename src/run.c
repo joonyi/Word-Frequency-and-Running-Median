@@ -1,8 +1,3 @@
-//Now it is tested with simple input that assume every words has a
-//separator such as comma, period, and space.
-//The program will see hello.\n and hello\n as two separate words. 
-//will update the code again before the deadline
-
 #include <stdio.h>
 #include <stdlib.h> 
 #include <sys/types.h>
@@ -117,8 +112,7 @@ int main(int argc, char *argv[]){
 	int i=0, j=0;
 	struct st structs[MAXWORDS] = {};
 	char	s[MAXWORDS];
-	int n, m;
-	n = 0;
+	int n=0;
 	int num_word; //count number of word each line
 	int x[MAXWORDS];
 	double median(int,int[]);
@@ -126,7 +120,7 @@ int main(int argc, char *argv[]){
 	FILE *f2;
 	FILE *f3;
     char ch;
-/****Change the path name here****************/
+/****Files Path Name****************/
 	char text_name[MAXSTRING]= "./wc_input/"; 
 	char input_path[MAXSTRING] = "./wc_input/"; 
 	char wc_result[MAXSTRING] ="./wc_output/wc_result.txt";
@@ -160,47 +154,40 @@ int main(int argc, char *argv[]){
 
 	   f = fopen(text_name,"r"); //open files
 	   while( ( ch = fgetc(f) ) != EOF ){
-			fputc(ch,f2); //write to wc_temp;		  
+		   ch=tolower(ch); 
+		   if(ch=='\n'){ //below three lines will put a separator '.' for word counting later
+			   fseek(f2,SEEK_CUR-2,SEEK_END);
+				fputc('.',f2); 
+				fputc('\n',f2);
+		   }
+		   else if (ch=='.'||ch==',') continue; //remove punctuation
+			else fputc(ch,f2); //write to wc_temp;		  
 	   }
 	   fputc('\n',f2);  //adjust off
 
 	}
 	printf("Found a total of %d files \n", j);
-	printf("---------- \n", j);
 	fclose(f);	
 	fclose(f2);
-/**************************************/
-/******* Sort the file into desire format *****/
+/***************************************************/
+/*** Resort the temp file for counting word frequency *****/
 	f = fopen (wc_temp, "r"); //read from wc_temp
 	if (f==NULL) perror ("Error opening file");
 	f2 = fopen (wc_result, "w"); //write to wc_output
-	f3 = fopen (med_result, "w"); //write to med_result
-	i=0;
-	j=0;
+
 	while (!feof (f)) { 
 		ch=fgetc(f) ;
-		ch=tolower(ch); 
-		if(ch=='\n') 	{ //record number of word per line
-			x[i]=num_word;
-			//printf("word count: %d, i:%d\n",x[i],i);
-			i++;
-			num_word=0;
-			printf("%.1f\n",median(i,x));
-			fprintf(f3, "%.1f\n",median(i,x));
-		}
-		if(ch==' '||ch=='\t'||ch==','||ch=='.')  { //count word after separators
-			num_word++;
-			ch='\n';
+		if(ch==' '||ch=='\t'||ch=='.'||ch==',')  {
+			ch='\n'; //put \n after every words
 		}
 		fputc (ch, f2); //write into wc_output
 	}
 	printf("---------- \n", j);
 	fclose(f);
 	fclose(f2);
-	fclose(f3);
 /********************************************/
 /*** reopen sorted file to count word frequency ***/
-	f = fopen (wc_result, "r+");
+	f = fopen (wc_result, "r+"); //read and update wc_result
 	if (f==NULL) printf ("Error opening file");
 	while (!feof (f)) {
 		fgets(s , MAXWORDS , f) ;		//get input to string s		
@@ -214,9 +201,37 @@ int main(int argc, char *argv[]){
 	size_t structs_len = sizeof(structs) / sizeof(struct st);
 	qsort(structs, structs_len, sizeof(struct st), struct_cmp);    
 /**************************************************/
-/****** print and write into wc_output **************/ 
+/****** print and write into wc_result **************/ 
 	print_struct_array(structs, structs_len,f);
 	fclose(f);
+/**************************************************/
+/****** count the words and median*******************/
+	f = fopen (wc_temp, "r"); //read from wc_temp
+	f2 = fopen (med_result, "w"); //write to med_result
+	if (f==NULL) printf ("Error opening file\n");
+	i=0;
+	j=0;
+	num_word=0;
+	while (!feof (f)) {
+		ch=fgetc(f) ;
+		if(ch==' '||ch=='\t')  {
+			num_word++;
+		}
+		
+		if(ch=='\n') {	
+			num_word++;
+			x[i]=num_word;
+			//printf("word count: %d, i:%d\n",x[i],i);
+			i++;
+			num_word=0;
+			printf("%.1f\n",median(i,x));
+			fprintf(f2, "%.1f\n",median(i,x));
+		}
+		
+	}
+	printf("----------");
+	fclose(f);
+ 	fclose(f2);
 /**************************************************/
 /****** Close directory and End ************************/ 
 	if(closedir(dip) == -1){
