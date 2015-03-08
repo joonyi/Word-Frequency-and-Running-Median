@@ -1,3 +1,9 @@
+//compile with "gcc run.c -o run"
+//run with "./run wc_input
+//1. Program will concatenate all the files, in alphabetical order, in folder wc_input into one files
+//2. Program will count word frequency and create wc_result in wc_output
+//3. Program will count median of each line and create med_result in wc_output
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <sys/types.h>
